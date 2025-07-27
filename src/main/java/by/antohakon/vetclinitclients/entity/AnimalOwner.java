@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "owners")
@@ -20,6 +21,9 @@ public class AnimalOwner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    private UUID animalOwnerUuid;
+
     @Column(nullable = false)
     private String firstName;
 
@@ -30,9 +34,16 @@ public class AnimalOwner {
     @OneToMany(mappedBy = "animalOwner", cascade = CascadeType.ALL) // каскадиование потом проерить
     private List<Animal> animal;
 
-    public AnimalOwner(String firstName, String lastName, List<Animal> animal) {
+    public AnimalOwner(UUID animalOwnerUuid, String firstName, String lastName, List<Animal> animal) {
+        this.animalOwnerUuid = animalOwnerUuid;
         this.firstName = firstName;
         this.lastName = lastName;
         this.animal = animal;
+    }
+
+    public AnimalOwner(UUID animalOwnerUuid, String firstName, String lastName) {
+        this.animalOwnerUuid = animalOwnerUuid;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 }
