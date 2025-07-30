@@ -38,10 +38,9 @@ public class AnimalServiceImpl implements AnimalService {
     public AnimalDto getAnimalById(UUID id) {
 
         log.info("method getnimalByID, try Get animal by id: {}", id);
-        Animal findAnimal = animalRepository.findByAnimalId(id); // проверить на null лиюо оптионал лиюо ифы сделать
+        Animal findAnimal = animalRepository.findByAnimalId(id);
         if (findAnimal == null) {
-            throw new RuntimeException("Animal not found with id: " + id);
-            //log.info("exception in method getAnimalById");
+            throw new RuntimeException("Animal not found with id: " + id); // сделать кастомный эксепшн
         }
 
         AnimalDto animal = AnimalDto.builder()
@@ -59,27 +58,79 @@ public class AnimalServiceImpl implements AnimalService {
     public AnimalDto createAnimal(CreateAnimalDto animal) {
 
         log.info("method createAnimal");
-        log.info("try find Owner byUUID in DB ");
-        AnimalOwner owner = animalOwnerRepository.findById(animal.animalOwnerUuid());
+        log.info("try find Owner byUUID in DB : {}", animal.animalOwnerUuid().toString());
+        AnimalOwner findOwner = animalOwnerRepository.findByAnimalOwnerUuid(animal.animalOwnerUuid());
+        if (findOwner == null) {
+            throw new RuntimeException("Owner not found with UUID: " + animal.animalOwnerUuid()); // долелать кастомный
+        }
+        log.info("successfully find Owner in DB : {}", findOwner);
+
+        log.info("try save Animal to DB : {}", animal);
         Animal newAnimal = Animal.builder()
                 .animalId(UUID.randomUUID())
                 .animalType(animal.animalType())
                 .animalName(animal.animalName())
+                .animalOwner(findOwner)
+                .build();
+        animalRepository.save(newAnimal);
+        log.info("successfully save Animal in DB : {}", newAnimal);
 
-                .animalOwner(
-                        animal.animalOwnerUuid())
-
+        AnimalDto animalDto = AnimalDto.builder()
+                .id(newAnimal.getAnimalId())
+                .animalType(newAnimal.getAnimalType())
+                .animalName(newAnimal.getAnimalName())
                 .build();
 
+        log.info("return ANimalDTO : {}", animalDto);
+        return animalDto;
     }
 
     @Override
     public AnimalDto updateAnimal(CreateAnimalDto animal, UUID id) {
-        return null;
+
+        log.info("method updateAnimal");
+        log.info("try find Owner byUUID in DB: {}", animal.animalOwnerUuid().toString());
+        Animal findAnimal = animalRepository.findByAnimalId(id);
+        if (findAnimal == null) {
+            throw new RuntimeException("Animal not found with id: " + id);
+        }
+
+        log.info("try find Owner byUUID in DB : {}", animal.animalOwnerUuid().toString());
+        AnimalOwner findOwner = animalOwnerRepository.findByAnimalOwnerUuid(animal.animalOwnerUuid());
+        if (findOwner == null) {
+            throw new RuntimeException("Owner not found with UUID: " + animal.animalOwnerUuid()); // долелать кастомный
+        }
+        log.info("successfully find Owner in DB : {}", findOwner);
+
+        log.info("try update Animal in DB : {}", findAnimal);
+        findAnimal.setAnimalOwner(findOwner);
+        findAnimal.setAnimalType(animal.animalType());
+        findAnimal.setAnimalName(animal.animalName());
+
+        animalRepository.save(findAnimal);
+        log.info("successfully update Animal in DB : {}", findAnimal);
+
+        AnimalDto animalDto = AnimalDto.builder()
+                .id(findAnimal.getAnimalId())
+                .animalType(findAnimal.getAnimalType())
+                .animalName(findAnimal.getAnimalName())
+                .build();
+
+        log.info("return ANimalDTO : {}", animalDto);
+        return animalDto;
+
     }
 
     @Override
     public void deleteAnimal(UUID id) {
+
+        log.info("method deleteAnimal, try Delete animal by id: {}", id);
+        Animal findAnimal = animalRepository.findByAnimalId(id);
+        if (findAnimal == null) {
+            throw new RuntimeException("Animal not found with id: " + id); // сделать кастомный эксепшн
+        }
+        animalRepository.delete(findAnimal);
+        log.info("animal with id {} deleted", id);
 
     }
 }
