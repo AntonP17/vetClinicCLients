@@ -2,6 +2,7 @@ package by.antohakon.vetclinitclients.service;
 
 import by.antohakon.vetclinitclients.dto.AnimalDto;
 import by.antohakon.vetclinitclients.dto.CreateAnimalDto;
+import by.antohakon.vetclinitclients.dto.UpdateAnimalDto;
 import by.antohakon.vetclinitclients.entity.Animal;
 import by.antohakon.vetclinitclients.entity.AnimalOwner;
 import by.antohakon.vetclinitclients.repository.AnimalOwnerRepository;
@@ -85,8 +86,8 @@ public class AnimalServiceImpl implements AnimalService {
         return animalDto;
     }
 
-    @Override
-    public AnimalDto updateAnimal(CreateAnimalDto animal, UUID id) {
+    @Override // ПРОВЕРИТ ВОЗВРАТ ДТО ДТО ДТО!!!!!!!!!!!!!!!!!!!!!!
+    public AnimalDto updateAnimal(UpdateAnimalDto animal, UUID id) {
 
         log.info("method updateAnimal");
         log.info("try find Owner byUUID in DB: {}", animal.animalOwnerUuid().toString());
