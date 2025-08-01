@@ -5,6 +5,8 @@ import by.antohakon.vetclinitclients.dto.CreateAnimalDto;
 import by.antohakon.vetclinitclients.dto.UpdateAnimalDto;
 import by.antohakon.vetclinitclients.entity.Animal;
 import by.antohakon.vetclinitclients.entity.AnimalOwner;
+import by.antohakon.vetclinitclients.exceptions.AnimalNotFoundException;
+import by.antohakon.vetclinitclients.exceptions.OwnerNotFoundException;
 import by.antohakon.vetclinitclients.repository.AnimalOwnerRepository;
 import by.antohakon.vetclinitclients.repository.AnimalRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +43,7 @@ public class AnimalServiceImpl implements AnimalService {
         log.info("method getnimalByID, try Get animal by id: {}", id);
         Animal findAnimal = animalRepository.findByAnimalId(id);
         if (findAnimal == null) {
-            throw new RuntimeException("Animal not found with id: " + id); // сделать кастомный эксепшн
+            throw new AnimalNotFoundException("Animal not found with id: " + id); // сделать кастомный эксепшн
         }
 
         AnimalDto animal = AnimalDto.builder()
@@ -62,7 +64,7 @@ public class AnimalServiceImpl implements AnimalService {
         log.info("try find Animal byUUID in DB : {}", animal.animalOwnerUuid().toString());
         AnimalOwner findOwner = animalOwnerRepository.findByAnimalOwnerUuid(animal.animalOwnerUuid());
         if (findOwner == null) {
-            throw new RuntimeException("Owner not found with UUID: " + animal.animalOwnerUuid()); // долелать кастомный
+            throw new OwnerNotFoundException("Owner not found with UUID: " + animal.animalOwnerUuid());
         }
         log.info("successfully find Animal in DB : {}", findOwner);
 
@@ -93,13 +95,13 @@ public class AnimalServiceImpl implements AnimalService {
         log.info("try find Animal byUUID in DB: {}", animal.animalOwnerUuid().toString());
         Animal findAnimal = animalRepository.findByAnimalId(id);
         if (findAnimal == null) {
-            throw new RuntimeException("Animal not found with id: " + id);
+            throw new AnimalNotFoundException("Animal not found with id: " + id);
         }
 
-        log.info("try find Animal byUUID in DB : {}", animal.animalOwnerUuid().toString());
+        log.info("try find Owner byUUID in DB : {}", animal.animalOwnerUuid().toString());
         AnimalOwner findOwner = animalOwnerRepository.findByAnimalOwnerUuid(animal.animalOwnerUuid());
         if (findOwner == null) {
-            throw new RuntimeException("Animal not found with UUID: " + animal.animalOwnerUuid()); // долелать кастомный
+            throw new OwnerNotFoundException("Owner not found with UUID: " + animal.animalOwnerUuid());
         }
         log.info("successfully find Animal in DB");
 
@@ -128,7 +130,7 @@ public class AnimalServiceImpl implements AnimalService {
         log.info("method deleteAnimal, try Delete animal by id: {}", id);
         Animal findAnimal = animalRepository.findByAnimalId(id);
         if (findAnimal == null) {
-            throw new RuntimeException("Animal not found with id: " + id); // сделать кастомный эксепшн
+            throw new AnimalNotFoundException("Animal not found with id: " + id); // сделать кастомный эксепшн
         }
         animalRepository.delete(findAnimal);
         log.info("animal with id {} deleted", id);

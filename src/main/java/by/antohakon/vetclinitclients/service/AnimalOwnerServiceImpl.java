@@ -5,6 +5,8 @@ import by.antohakon.vetclinitclients.dto.AnimalOwnerDto;
 import by.antohakon.vetclinitclients.dto.AnimalOwnersWithAnimalsDto;
 import by.antohakon.vetclinitclients.dto.CreateAnimalOwnerDto;
 import by.antohakon.vetclinitclients.entity.AnimalOwner;
+import by.antohakon.vetclinitclients.exceptions.OwnerDublicateException;
+import by.antohakon.vetclinitclients.exceptions.OwnerNotFoundException;
 import by.antohakon.vetclinitclients.repository.AnimalOwnerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +47,7 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
         log.info("method getAnimalOwnerById try get owner by id: {}", id);
         AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(id);
         if (findAnimalOwner == null) {
-            throw new RuntimeException("AnimalOwner not found with id: " + id); // сделать кастомный эксепшн
+            throw new OwnerNotFoundException("AnimalOwner not found with id: " + id); // сделать кастомный эксепшн
         }
 
 //        AnimalOwnerDto owner = AnimalOwnerDto.builder() // можно заменить на мапстракт
@@ -81,7 +83,7 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
         log.info("method createAnimalOwner");
         log.info("try find exist Owner by last name");
         if (animalOwnerRepository.existsAnimalOwnersByLastName(owner.lastName())) {
-            throw new RuntimeException("Owner already exists with last name: " + owner.lastName()); // тоже кастом сделать
+            throw new OwnerDublicateException("Owner already exists with last name: " + owner.lastName()); // тоже кастом сделать
         }
 
         log.info("try save animalOwner to DB");
@@ -111,7 +113,7 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
         log.info("method updateAnimalOwner");
         AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(id);
         if (findAnimalOwner == null) {
-            throw new RuntimeException("AnimalOwner not found with id: " + id); // сделать кастомный эксепшн
+            throw new OwnerNotFoundException("AnimalOwner not found with id: " + id); // сделать кастомный эксепшн
         }
 
         log.info("try update animalOwner to DB");
@@ -138,7 +140,7 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
         log.info("method deleteAnimalOwner");
         AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(id);
         if (findAnimalOwner == null) {
-            throw new RuntimeException("AnimalOwner not found with id: " + id); // сделать кастомный эксепшн
+            throw new OwnerNotFoundException("AnimalOwner not found with id: " + id); // сделать кастомный эксепшн
         }
 
         animalOwnerRepository.delete(findAnimalOwner);
