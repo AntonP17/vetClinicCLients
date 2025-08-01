@@ -43,7 +43,6 @@ public class AnimalController {
     }
 
 
-    // ЭТОТ МЕТОД ПРОЕврИТЬ ПРОВЕРИТЬ ПРВОЕРИТЬ ДТО ДТО ДОЛЖНО БЫТЬ УПДАТЕДТО
     @PutMapping("/{animalId}")
     @ResponseStatus(value = HttpStatus.OK)
     public AnimalDto updateAnimal(@PathVariable UUID animalId, @RequestBody UpdateAnimalDto updateAnimalDto) {

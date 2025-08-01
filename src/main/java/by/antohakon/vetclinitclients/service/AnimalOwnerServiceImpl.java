@@ -1,6 +1,8 @@
 package by.antohakon.vetclinitclients.service;
 
+import by.antohakon.vetclinitclients.dto.AnimalDto;
 import by.antohakon.vetclinitclients.dto.AnimalOwnerDto;
+import by.antohakon.vetclinitclients.dto.AnimalOwnersWithAnimalsDto;
 import by.antohakon.vetclinitclients.dto.CreateAnimalOwnerDto;
 import by.antohakon.vetclinitclients.entity.AnimalOwner;
 import by.antohakon.vetclinitclients.repository.AnimalOwnerRepository;
@@ -10,12 +12,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class AnimalOwnerSeviceImpl implements AnimalOwnerService {
+public class AnimalOwnerServiceImpl implements AnimalOwnerService {
 
     private final AnimalOwnerRepository animalOwnerRepository;
 
@@ -33,7 +38,9 @@ public class AnimalOwnerSeviceImpl implements AnimalOwnerService {
     }
 
     @Override
-    public AnimalOwnerDto getAnimalOwnerById(UUID id) {
+    // ДОЕЛЛАТЬ ДОДЕЛАТТ ДОДЕЛАТЬ С ДТО СПИСКОМ ЖИВОТНЫХ
+    // ПРОВЕРИТЬ НАХРЕН ВСЕ ВСЕ ВСЕ
+    public AnimalOwnersWithAnimalsDto getAnimalOwnerById(UUID id) {
 
         log.info("method getAnimalOwnerById try get owner by id: {}", id);
         AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(id);
@@ -41,10 +48,26 @@ public class AnimalOwnerSeviceImpl implements AnimalOwnerService {
             throw new RuntimeException("AnimalOwner not found with id: " + id); // сделать кастомный эксепшн
         }
 
-        AnimalOwnerDto owner = AnimalOwnerDto.builder() // можно заменить на мапстракт
+//        AnimalOwnerDto owner = AnimalOwnerDto.builder() // можно заменить на мапстракт
+//                .animalOwnerUuid(findAnimalOwner.getAnimalOwnerUuid())
+//                .firstName(findAnimalOwner.getFirstName())
+//                .lastName(findAnimalOwner.getLastName())
+//                .build();
+
+        List<AnimalDto> animals = Optional.ofNullable(findAnimalOwner.getAnimal())
+                .orElse(Collections.emptyList()) // Если null → пустой список
+                .stream()
+                .map(animal -> new AnimalDto(
+                        animal.getAnimalId(),
+                        animal.getAnimalType(),
+                        animal.getAnimalName()))
+                .toList();
+
+        AnimalOwnersWithAnimalsDto owner = AnimalOwnersWithAnimalsDto.builder()
                 .animalOwnerUuid(findAnimalOwner.getAnimalOwnerUuid())
                 .firstName(findAnimalOwner.getFirstName())
                 .lastName(findAnimalOwner.getLastName())
+                .animals(animals)
                 .build();
 
         log.info("method getAnimalOwnerById return animalOwner: {}", owner);
@@ -96,9 +119,10 @@ public class AnimalOwnerSeviceImpl implements AnimalOwnerService {
         findAnimalOwner.setLastName(owner.lastName());
 
         animalOwnerRepository.save(findAnimalOwner);
-        log.info("successfully update animalOwner to DB: {}", findAnimalOwner);
+        log.info("successfully update animalOwner to DB ");
 
         AnimalOwnerDto updateUser = AnimalOwnerDto.builder()
+                .animalOwnerUuid(findAnimalOwner.getAnimalOwnerUuid())
                 .firstName(findAnimalOwner.getFirstName())
                 .lastName(findAnimalOwner.getLastName())
                 .build();
