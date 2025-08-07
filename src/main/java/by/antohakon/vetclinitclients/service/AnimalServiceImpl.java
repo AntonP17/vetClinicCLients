@@ -43,7 +43,7 @@ public class AnimalServiceImpl implements AnimalService {
         log.info("method getnimalByID, try Get animal by id: {}", id);
         Animal findAnimal = animalRepository.findByAnimalId(id);
         if (findAnimal == null) {
-            throw new AnimalNotFoundException("Animal not found with id: " + id); // сделать кастомный эксепшн
+            throw new AnimalNotFoundException("Animal not found with id: " + id);
         }
 
         AnimalDto animal = AnimalDto.builder()
@@ -61,12 +61,12 @@ public class AnimalServiceImpl implements AnimalService {
     public AnimalDto createAnimal(CreateAnimalDto animal) {
 
         log.info("method createAnimal");
-        log.info("try find Animal byUUID in DB : {}", animal.animalOwnerUuid().toString());
+        log.info("try find Owner byUUID in DB : {}", animal.animalOwnerUuid().toString());
         AnimalOwner findOwner = animalOwnerRepository.findByAnimalOwnerUuid(animal.animalOwnerUuid());
         if (findOwner == null) {
             throw new OwnerNotFoundException("Owner not found with UUID: " + animal.animalOwnerUuid());
         }
-        log.info("successfully find Animal in DB : {}", findOwner);
+        log.info("successfully find Owner in DB : {}", findOwner);
 
         log.info("try save Animal to DB : {}", animal);
         Animal newAnimal = Animal.builder()
@@ -130,7 +130,7 @@ public class AnimalServiceImpl implements AnimalService {
         log.info("method deleteAnimal, try Delete animal by id: {}", id);
         Animal findAnimal = animalRepository.findByAnimalId(id);
         if (findAnimal == null) {
-            throw new AnimalNotFoundException("Animal not found with id: " + id); // сделать кастомный эксепшн
+            throw new AnimalNotFoundException("Animal not found with id: " + id);
         }
         animalRepository.delete(findAnimal);
         log.info("animal with id {} deleted", id);

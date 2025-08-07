@@ -47,7 +47,7 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
         log.info("method getAnimalOwnerById try get owner by id: {}", id);
         AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(id);
         if (findAnimalOwner == null) {
-            throw new OwnerNotFoundException("AnimalOwner not found with id: " + id); // сделать кастомный эксепшн
+            throw new OwnerNotFoundException("AnimalOwner not found with id: " + id);
         }
 
 //        AnimalOwnerDto owner = AnimalOwnerDto.builder() // можно заменить на мапстракт
@@ -83,7 +83,7 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
         log.info("method createAnimalOwner");
         log.info("try find exist Owner by last name");
         if (animalOwnerRepository.existsAnimalOwnersByLastName(owner.lastName())) {
-            throw new OwnerDublicateException("Owner already exists with last name: " + owner.lastName()); // тоже кастом сделать
+            throw new OwnerDublicateException("Owner already exists with last name: " + owner.lastName());
         }
 
         log.info("try save animalOwner to DB");
@@ -113,7 +113,7 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
         log.info("method updateAnimalOwner");
         AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(id);
         if (findAnimalOwner == null) {
-            throw new OwnerNotFoundException("AnimalOwner not found with id: " + id); // сделать кастомный эксепшн
+            throw new OwnerNotFoundException("AnimalOwner not found with id: " + id);
         }
 
         log.info("try update animalOwner to DB");
@@ -140,7 +140,7 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
         log.info("method deleteAnimalOwner");
         AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(id);
         if (findAnimalOwner == null) {
-            throw new OwnerNotFoundException("AnimalOwner not found with id: " + id); // сделать кастомный эксепшн
+            throw new OwnerNotFoundException("AnimalOwner not found with id: " + id);
         }
 
         animalOwnerRepository.delete(findAnimalOwner);
