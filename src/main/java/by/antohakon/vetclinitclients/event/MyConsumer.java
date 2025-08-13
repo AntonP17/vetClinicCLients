@@ -58,6 +58,7 @@ public class MyConsumer {
         }
 
         AnimalAndOwnerEvent animalAndOwnerEvent = AnimalAndOwnerEvent.builder()
+                .visitId(visitInfoDto.visitId())
                 .animalName(findAnimal.getAnimalName())
                 .fullName(findAnimalOwner.getLastName() + " " + findAnimalOwner.getFirstName())
                 .build();
