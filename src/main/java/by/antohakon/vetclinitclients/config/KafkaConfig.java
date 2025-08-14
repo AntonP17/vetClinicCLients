@@ -25,7 +25,7 @@ public class KafkaConfig {
     @Bean
     public NewTopic clientsTopic() {
         return TopicBuilder.name("client_visit_response")
-                .partitions(5)
+                .partitions(3)
                 .replicas(1)
                 .build();
     }
