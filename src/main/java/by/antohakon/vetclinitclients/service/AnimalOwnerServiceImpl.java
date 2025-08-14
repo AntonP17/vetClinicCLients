@@ -40,8 +40,6 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
     }
 
     @Override
-    // ДОЕЛЛАТЬ ДОДЕЛАТТ ДОДЕЛАТЬ С ДТО СПИСКОМ ЖИВОТНЫХ
-    // ПРОВЕРИТЬ НАХРЕН ВСЕ ВСЕ ВСЕ
     public AnimalOwnersWithAnimalsDto getAnimalOwnerById(UUID id) {
 
         log.info("method getAnimalOwnerById try get owner by id: {}", id);
