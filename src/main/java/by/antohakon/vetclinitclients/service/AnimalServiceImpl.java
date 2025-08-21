@@ -11,6 +11,9 @@ import by.antohakon.vetclinitclients.repository.AnimalOwnerRepository;
 import by.antohakon.vetclinitclients.repository.AnimalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,12 +41,13 @@ public class AnimalServiceImpl implements AnimalService {
     }
 
     @Override
-    public AnimalDto getAnimalById(UUID id) {
+    @Cacheable(value = "animal_cache", key = "#animalId")
+    public AnimalDto getAnimalById(UUID animalId) {
 
-        log.info("method getnimalByID, try Get animal by id: {}", id);
-        Animal findAnimal = animalRepository.findByAnimalId(id);
+        log.info("method getnimalByID, try Get animal by id: {}", animalId);
+        Animal findAnimal = animalRepository.findByAnimalId(animalId);
         if (findAnimal == null) {
-            throw new AnimalNotFoundException("Animal not found with id: " + id);
+            throw new AnimalNotFoundException("Animal not found with id: " + animalId);
         }
 
         AnimalDto animal = AnimalDto.builder()
@@ -58,6 +62,7 @@ public class AnimalServiceImpl implements AnimalService {
     }
 
     @Override
+    @CachePut(value = "animal_cache", key = "#result.id")
     public AnimalDto createAnimal(CreateAnimalDto animal) {
 
         log.info("method createAnimal");
@@ -68,7 +73,7 @@ public class AnimalServiceImpl implements AnimalService {
         }
         log.info("successfully find Owner in DB : {}", findOwner);
 
-        log.info("try save Animal to DB : {}", animal);
+        log.info("try save Animal to DB ");
         Animal newAnimal = Animal.builder()
                 .animalId(UUID.randomUUID())
                 .animalType(animal.animalType())
@@ -76,7 +81,7 @@ public class AnimalServiceImpl implements AnimalService {
                 .animalOwner(findOwner)
                 .build();
         animalRepository.save(newAnimal);
-        log.info("successfully save Animal in DB : {}", newAnimal);
+        log.info("successfully save Animal in DB");
 
         AnimalDto animalDto = AnimalDto.builder()
                 .id(newAnimal.getAnimalId())
@@ -89,13 +94,14 @@ public class AnimalServiceImpl implements AnimalService {
     }
 
     @Override
-    public AnimalDto updateAnimal(UpdateAnimalDto animal, UUID id) {
+    @CachePut(value = "animal_cache", key = "#animalId")
+    public AnimalDto updateAnimal(UpdateAnimalDto animal, UUID animalId) {
 
         log.info("method updateAnimal");
         log.info("try find Animal byUUID in DB: {}", animal.animalOwnerUuid().toString());
-        Animal findAnimal = animalRepository.findByAnimalId(id);
+        Animal findAnimal = animalRepository.findByAnimalId(animalId);
         if (findAnimal == null) {
-            throw new AnimalNotFoundException("Animal not found with id: " + id);
+            throw new AnimalNotFoundException("Animal not found with id: " + animalId);
         }
 
         log.info("try find Owner byUUID in DB : {}", animal.animalOwnerUuid().toString());
@@ -125,15 +131,16 @@ public class AnimalServiceImpl implements AnimalService {
     }
 
     @Override
-    public void deleteAnimal(UUID id) {
+    @CacheEvict(value = "animal_cache", key = "#animalId")
+    public void deleteAnimal(UUID animalId) {
 
-        log.info("method deleteAnimal, try Delete animal by id: {}", id);
-        Animal findAnimal = animalRepository.findByAnimalId(id);
+        log.info("method deleteAnimal, try Delete animal by id: {}", animalId);
+        Animal findAnimal = animalRepository.findByAnimalId(animalId);
         if (findAnimal == null) {
-            throw new AnimalNotFoundException("Animal not found with id: " + id);
+            throw new AnimalNotFoundException("Animal not found with id: " + animalId);
         }
         animalRepository.delete(findAnimal);
-        log.info("animal with id {} deleted", id);
+        log.info("animal with id {} deleted", animalId);
 
     }
 }

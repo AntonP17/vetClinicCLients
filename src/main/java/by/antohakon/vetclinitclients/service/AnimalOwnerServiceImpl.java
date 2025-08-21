@@ -10,6 +10,9 @@ import by.antohakon.vetclinitclients.exceptions.OwnerNotFoundException;
 import by.antohakon.vetclinitclients.repository.AnimalOwnerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,12 +43,13 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
     }
 
     @Override
-    public AnimalOwnersWithAnimalsDto getAnimalOwnerById(UUID id) {
+    @Cacheable(value = "owner_cache", key = "#ownerId")
+    public AnimalOwnersWithAnimalsDto getAnimalOwnerById(UUID ownerId) {
 
-        log.info("method getAnimalOwnerById try get owner by id: {}", id);
-        AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(id);
+        log.info("method getAnimalOwnerById try get owner by id: {}", ownerId);
+        AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(ownerId);
         if (findAnimalOwner == null) {
-            throw new OwnerNotFoundException("AnimalOwner not found with id: " + id);
+            throw new OwnerNotFoundException("AnimalOwner not found with id: " + ownerId);
         }
 
 //        AnimalOwnerDto owner = AnimalOwnerDto.builder() // можно заменить на мапстракт
@@ -92,7 +96,7 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
                 .build();
         animalOwnerRepository.save(newOwner);
 
-        log.info("successfully save animalOwner to DB: {}", newOwner);
+        log.info("successfully save animalOwner to DB");
 
         AnimalOwnerDto animalOwnerDto = AnimalOwnerDto.builder()
                 .animalOwnerUuid(newOwner.getAnimalOwnerUuid())
@@ -106,12 +110,12 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
     }
 
     @Override
-    public AnimalOwnerDto updateAnimalOwner(CreateAnimalOwnerDto owner, UUID id) {
+    public AnimalOwnerDto updateAnimalOwner(CreateAnimalOwnerDto owner, UUID ownerId) {
 
         log.info("method updateAnimalOwner");
-        AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(id);
+        AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(ownerId);
         if (findAnimalOwner == null) {
-            throw new OwnerNotFoundException("AnimalOwner not found with id: " + id);
+            throw new OwnerNotFoundException("AnimalOwner not found with id: " + ownerId);
         }
 
         log.info("try update animalOwner to DB");
@@ -133,12 +137,13 @@ public class AnimalOwnerServiceImpl implements AnimalOwnerService {
     }
 
     @Override
-    public void deleteAnimalOwner(UUID id) {
+    @CacheEvict(value = "owner_cache", key = "#ownerId")
+    public void deleteAnimalOwner(UUID ownerId) {
 
         log.info("method deleteAnimalOwner");
-        AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(id);
+        AnimalOwner findAnimalOwner = animalOwnerRepository.findByAnimalOwnerUuid(ownerId);
         if (findAnimalOwner == null) {
-            throw new OwnerNotFoundException("AnimalOwner not found with id: " + id);
+            throw new OwnerNotFoundException("AnimalOwner not found with id: " + ownerId);
         }
 
         animalOwnerRepository.delete(findAnimalOwner);
