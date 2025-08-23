@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "animals")
+@Table(name = "animals", indexes = {
+        @Index(columnList = "animalId", name = "animal_uuid_index"),
+        @Index(columnList = "owner_id", name = "animal_owner_index")
+})
 @Builder
 @Data
 @NoArgsConstructor

@@ -10,7 +10,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "owners")
+@Table(name = "owners", indexes = {
+        @Index(columnList = "animalOwnerUuid", name = "animal_owner_uuid_index"),
+        @Index(columnList = "lastName", name = "owner_lastname_index")
+})
 @Builder
 @Data
 @NoArgsConstructor
