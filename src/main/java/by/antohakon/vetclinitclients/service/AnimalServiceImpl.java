@@ -14,8 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -27,6 +29,7 @@ public class AnimalServiceImpl implements AnimalService {
 
     private final AnimalRepository animalRepository;
     private final AnimalOwnerRepository animalOwnerRepository;
+    private final RedisCacheManager cacheManager;
 
     @Override
     public Page<AnimalDto> getAllAnimals(Pageable pageable) {
@@ -63,6 +66,7 @@ public class AnimalServiceImpl implements AnimalService {
 
     @Override
     @CachePut(value = "animal_cache", key = "#result.id")
+    @CacheEvict(value = "owner_cache", key = "#animal.animalOwnerUuid()")
     public AnimalDto createAnimal(CreateAnimalDto animal) {
 
         log.info("method createAnimal");
@@ -95,6 +99,7 @@ public class AnimalServiceImpl implements AnimalService {
 
     @Override
     @CachePut(value = "animal_cache", key = "#animalId")
+    @CacheEvict(value = "owner_cache", key = "#animal.animalOwnerUuid()")
     public AnimalDto updateAnimal(UpdateAnimalDto animal, UUID animalId) {
 
         log.info("method updateAnimal");
@@ -139,6 +144,10 @@ public class AnimalServiceImpl implements AnimalService {
         if (findAnimal == null) {
             throw new AnimalNotFoundException("Animal not found with id: " + animalId);
         }
+
+        UUID ownerId = findAnimal.getAnimalOwner().getAnimalOwnerUuid();
+        cacheManager.getCache("owner_cache").evict(ownerId);
+
         animalRepository.delete(findAnimal);
         log.info("animal with id {} deleted", animalId);
 
