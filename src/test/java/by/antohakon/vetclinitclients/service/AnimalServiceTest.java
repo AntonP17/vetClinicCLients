@@ -22,13 +22,15 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.data.redis.cache.RedisCacheManager;
 
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -38,6 +40,10 @@ public class AnimalServiceTest {
     private AnimalRepository animalRepository;
     @Mock
     private AnimalOwnerRepository animalOwnerRepository;
+    @Mock
+    private CacheManager cacheManager;
+    @Mock
+    private Cache cache;
     @InjectMocks
     private AnimalServiceImpl animalService;
 
@@ -210,14 +216,22 @@ public class AnimalServiceTest {
     @DisplayName("удаление из БД")
     void deleteAnimal_positive() {
 
+        AnimalOwner owner = AnimalOwner.builder()
+                .animalOwnerUuid(TEST_UUID)
+                .build();
+
         Animal existingAnimal = Animal.builder()
                 .animalId(TEST_UUID)
                 .animalType(AnimalType.BIRD)
                 .animalName("Gasya")
+                .animalOwner(owner)
                 .build();
 
         when(animalRepository.findByAnimalId(TEST_UUID)).thenReturn(existingAnimal);
         doNothing().when(animalRepository).delete(existingAnimal);
+
+        when(cacheManager.getCache("owner_cache")).thenReturn(cache);
+        doNothing().when(cache).evict(TEST_UUID);
 
         assertDoesNotThrow(() -> {
             animalService.deleteAnimal(TEST_UUID);

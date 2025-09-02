@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -145,8 +146,13 @@ public class AnimalServiceImpl implements AnimalService {
             throw new AnimalNotFoundException("Animal not found with id: " + animalId);
         }
 
-        UUID ownerId = findAnimal.getAnimalOwner().getAnimalOwnerUuid();
-        cacheManager.getCache("owner_cache").evict(ownerId);
+        Optional.ofNullable(findAnimal.getAnimalOwner())
+                .map(AnimalOwner::getAnimalOwnerUuid)
+                .ifPresent(ownerId -> {
+                    Optional.ofNullable(cacheManager)
+                            .map(manager -> manager.getCache("owner_cache"))
+                            .ifPresent(cache -> cache.evict(ownerId));
+                });
 
         animalRepository.delete(findAnimal);
         log.info("animal with id {} deleted", animalId);
